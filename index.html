@@ -1,0 +1,1336 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f5f1fa">
+<title>Melody · 音乐播放器</title>
+
+<style>
+:root {
+  --bg: #f5f1fa;
+  --surface: #fffbff;
+  --low: #f0eaf5;
+  --primary: #65558f;
+  --primary-dark: #4e3d76;
+  --ink: #211b2b;
+  --muted: #706a79;
+  --outline: #d5cadd;
+  --shadow: 0 8px 30px #30213c0d;
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.shell {
+  max-width: 1180px;
+  margin: auto;
+  padding: 0 25px 32px;
+}
+
+.top {
+  height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.logo {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: white;
+  border-radius: 14px;
+  font-size: 25px;
+}
+
+.status {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.status::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #499773;
+  margin-right: 8px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(290px, .95fr) minmax(340px, 1.05fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid #d5cadd99;
+  border-radius: 27px;
+  box-shadow: var(--shadow);
+}
+
+.library {
+  padding: 25px 22px;
+  min-height: 650px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.7px;
+  color: var(--primary);
+}
+
+h1, h2 {
+  margin: 0;
+  letter-spacing: -.6px;
+}
+
+h1 {
+  font-size: 28px;
+}
+
+h2 {
+  font-size: 19px;
+}
+
+.pill {
+  padding: 7px 11px;
+  background: var(--low);
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.search {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--low);
+  border-radius: 15px;
+  padding: 0 14px;
+  margin: 23px 0;
+}
+
+.search span {
+  font-size: 24px;
+  color: var(--muted);
+}
+
+.search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.listhead {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 750;
+  margin: 0 4px 10px;
+}
+
+.listhead span + span {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 43px minmax(0, 1fr) 35px;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  text-align: left;
+  color: inherit;
+  padding: 9px;
+}
+
+.row:hover {
+  background: var(--low);
+}
+
+.row.active {
+  background: #e9e1f4;
+}
+
+.mini {
+  width: 43px;
+  height: 43px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(140deg, #dac9f0, #f4dce7);
+  color: var(--primary-dark);
+  font-size: 20px;
+  overflow: hidden;
+}
+
+.mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.copy {
+  min-width: 0;
+}
+
+.title, .artist {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 750;
+  margin-bottom: 4px;
+}
+
+.artist {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.length {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+}
+
+.note {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 18px 4px 0;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 48px 10px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.player {
+  padding: 25px 30px 23px;
+}
+
+.icon {
+  width: 41px;
+  height: 41px;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--primary-dark);
+  font-size: 21px;
+  position: relative;
+}
+
+.icon:hover {
+  background: var(--low);
+}
+
+.artwrap {
+  display: grid;
+  place-items: center;
+  padding: 22px 0;
+}
+
+.art {
+  width: min(100%, 300px);
+  aspect-ratio: 1;
+  border-radius: 27px;
+  overflow: hidden;
+  position: relative;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 25% 20%, #f7dce8, transparent 35%),
+    linear-gradient(145deg, #d4c5ed, #a99bcf 55%, #8d82b9);
+  box-shadow: 0 18px 38px #67538f30;
+}
+
+.art::before, .art::after {
+  content: "";
+  position: absolute;
+  border: 1px solid #ffffff70;
+  border-radius: 50%;
+  width: 68%;
+  aspect-ratio: 1;
+}
+
+.art::after {
+  width: 48%;
+}
+
+.art .symbol {
+  font-size: 75px;
+  color: #fffafc;
+  z-index: 1;
+}
+
+.art img {
+  position: absolute;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.meta {
+  text-align: center;
+  margin-bottom: 21px;
+}
+
+.nowtitle {
+  font-size: 21px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.nowartist {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 7px;
+}
+
+.range {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 5px;
+  border-radius: 10px;
+  background: #e2dbe9;
+  outline: 0;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.range::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--surface);
+}
+
+#seek {
+  width: 100%;
+  display: block;
+}
+
+.times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 9px;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(4px, 1.8vw, 16px);
+  margin: 18px 0;
+}
+
+.controls .icon {
+  font-size: 21px;
+}
+
+.controls .muted {
+  color: var(--muted);
+}
+
+.controls .on {
+  background: #e9e1f4;
+  color: var(--primary);
+}
+
+.play {
+  width: 62px;
+  height: 62px;
+  border: 0;
+  border-radius: 23px;
+  background: var(--primary);
+  color: white;
+  font-size: 22px;
+  box-shadow: 0 7px 16px #65558f35;
+}
+
+.play:hover {
+  background: var(--primary-dark);
+}
+
+.one {
+  position: absolute;
+  top: 6px;
+  right: 5px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.options {
+  border-top: 1px solid #eee7f2;
+  padding-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.vol, .speed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.small {
+  width: 30px;
+  height: 30px;
+  font-size: 15px;
+}
+
+.vol input {
+  width: 90px;
+}
+
+.speed select {
+  padding: 7px 8px;
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  color: var(--primary-dark);
+  background: var(--surface);
+  font-size: 12px;
+}
+
+.lyrics {
+  padding: 23px 26px;
+}
+
+.lyricbody {
+  padding: 18px 0 5px;
+  text-align: center;
+  white-space: pre-wrap;
+  line-height: 2;
+  font-size: 14px;
+  color: var(--muted);
+  max-height: 360px;
+  overflow: auto;
+}
+
+.lyricline {
+  display: block;
+}
+
+.lyricline.current {
+  color: var(--primary-dark);
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.footer {
+  text-align: center;
+  color: #92899c;
+  font-size: 11px;
+  margin: 2px;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 20px);
+  opacity: 0;
+  pointer-events: none;
+  background: #30283c;
+  color: white;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-size: 13px;
+  transition: .22s;
+  z-index: 9;
+  max-width: calc(100vw - 30px);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (max-width: 800px) {
+  .shell {
+    padding: 0 14px 25px;
+  }
+
+  .top {
+    height: 70px;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .right {
+    order: 1;
+  }
+
+  .library {
+    order: 2;
+    min-height: 0;
+    padding: 22px 16px;
+  }
+
+  .player {
+    padding: 22px 18px;
+  }
+
+  .art {
+    width: min(76vw, 290px);
+  }
+
+  .lyrics {
+    padding: 21px 18px;
+  }
+}
+
+@media (max-width: 390px) {
+  .player {
+    padding-inline: 13px;
+  }
+
+  .controls {
+    gap: 2px;
+  }
+
+  .controls .icon {
+    width: 37px;
+  }
+
+  .play {
+    width: 56px;
+    height: 56px;
+  }
+
+  .vol input {
+    width: 70px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+  <header class="top">
+    <div class="brand">
+      <span class="logo">♫</span>
+      <span>Melody</span>
+    </div>
+    <div class="status">静态音乐库</div>
+  </header>
+
+  <main class="layout">
+
+    <section class="card library">
+      <div class="heading">
+        <div>
+          <p class="eyebrow">YOUR COLLECTION</p>
+          <h1>音乐库</h1>
+        </div>
+        <span class="pill" id="count">0 首</span>
+      </div>
+
+      <label class="search">
+        <span>⌕</span>
+        <input id="search" type="search"
+               placeholder="搜索歌曲或艺术家…"
+               autocomplete="off">
+      </label>
+
+      <div class="listhead">
+        <span>所有歌曲</span>
+        <span id="liststatus">准备播放</span>
+      </div>
+
+      <div class="list" id="list"></div>
+
+      <div class="empty" id="empty">
+        还没有配置歌曲。<br>
+        请编辑本页面中的 TRACKS 数组。
+      </div>
+
+      <p class="note">
+        静态音乐库 · 音频、封面和歌词可放在独立目录。
+      </p>
+    </section>
+
+    <section class="right">
+
+      <section class="card player">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">NOW PLAYING</p>
+            <h2>正在播放</h2>
+          </div>
+          <button class="icon" id="lyrics-toggle"
+                  title="查看歌词" aria-label="查看歌词">☷</button>
+        </div>
+
+        <div class="artwrap">
+          <div class="art" id="art">
+            <span class="symbol">♫</span>
+          </div>
+        </div>
+
+        <div class="meta">
+          <div class="nowtitle" id="nowtitle">选择一首歌曲</div>
+          <div class="nowartist" id="nowartist">你的音乐，从这里开始</div>
+        </div>
+
+        <audio id="audio" preload="metadata"></audio>
+
+        <div>
+          <input class="range" id="seek" type="range"
+                 min="0" max="1000" value="0"
+                 aria-label="播放进度">
+
+          <div class="times">
+            <span id="elapsed">0:00</span>
+            <span id="total">0:00</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="icon muted" id="shuffle"
+                  title="随机播放" aria-label="随机播放">⤨</button>
+
+          <button class="icon" id="prev"
+                  title="上一首" aria-label="上一首">⏮</button>
+
+          <button class="play" id="play"
+                  title="播放" aria-label="播放">▶</button>
+
+          <button class="icon" id="next"
+                  title="下一首" aria-label="下一首">⏭</button>
+
+          <button class="icon muted" id="repeat"
+                  title="循环模式：列表循环"
+                  aria-label="循环模式：列表循环">
+            ↻<span class="one" id="one" hidden>1</span>
+          </button>
+        </div>
+
+        <div class="options">
+          <div class="vol">
+            <button class="icon small" id="mute"
+                    title="静音" aria-label="静音">🔊</button>
+            <input class="range" id="volume" type="range"
+                   min="0" max="100" value="80"
+                   aria-label="音量">
+          </div>
+
+          <label class="speed">
+            倍速
+            <select id="speed" aria-label="播放倍速">
+              <option value="0.5">0.5×</option>
+              <option value="0.75">0.75×</option>
+              <option value="1" selected>1×</option>
+              <option value="1.25">1.25×</option>
+              <option value="1.5">1.5×</option>
+              <option value="1.75">1.75×</option>
+              <option value="2">2×</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="card lyrics" id="lyrics-panel" hidden>
+        <div class="heading">
+          <div>
+            <p class="eyebrow">LYRICS</p>
+            <h2>歌词</h2>
+          </div>
+          <button class="icon" id="lyrics-close"
+                  aria-label="关闭歌词">×</button>
+        </div>
+
+        <div class="lyricbody" id="lyricbody">
+          选择歌曲后显示歌词。
+        </div>
+      </section>
+
+      <p class="footer">让每一段旋律，都有自己的位置。</p>
+
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/*
+ * ================================
+ * 歌曲配置：只需要修改这里
+ * ================================
+ *
+ * 路径相对于 index.html 所在目录。
+ *
+ * 仓库结构示例：
+ * index.html
+ * music/song.mp3
+ * covers/song.jpg
+ * lyrics/song.lrc
+ *
+ * cover 和 lyrics 都是可选项。
+ */
+
+const TRACKS = [
+  {
+    title: "示例歌曲（请替换）",
+    artist: "示例艺术家",
+    album: "我的音乐",
+    src: "music/example.mp3",
+    cover: "covers/example.jpg",
+    lyrics: "lyrics/example.lrc"
+  }
+
+  /*
+  添加第二首歌曲时，在上一个对象后面加逗号：
+
+  ,
+  {
+    title: "第二首歌曲",
+    artist: "艺术家",
+    album: "专辑",
+    src: "music/song2.flac",
+    cover: "covers/song2.jpg",
+    lyrics: "lyrics/song2.lrc"
+  }
+  */
+];
+
+
+/* ================================
+   播放器逻辑
+================================ */
+
+const $ = id => document.getElementById(id);
+const audio = $("audio");
+
+let tracks = TRACKS.filter(t => t && t.src);
+let index = -1;
+let repeatMode = "all";
+let shuffle = false;
+let lrc = [];
+let toastTimer;
+
+
+/* 提示消息 */
+
+function toast(message) {
+  $("toast").textContent = message;
+  $("toast").classList.add("show");
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => {
+    $("toast").classList.remove("show");
+  }, 2600);
+}
+
+
+/* 时间格式 */
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return "0:00";
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const secs = String(Math.floor(seconds % 60)).padStart(2, "0");
+
+  return minutes + ":" + secs;
+}
+
+
+/* 歌曲标题 */
+
+function getTitle(track) {
+  if (track.title) return track.title;
+
+  const file = track.src.split("/").pop() || "未知歌曲";
+
+  return decodeURIComponent(file).replace(/\.[^.]+$/, "");
+}
+
+
+/* 渲染播放列表 */
+
+function renderList() {
+  const query = $("search").value.trim().toLowerCase();
+
+  const shown = tracks
+    .map((track, i) => ({ track, i }))
+    .filter(({ track }) => {
+      const text = [
+        getTitle(track),
+        track.artist || "",
+        track.album || ""
+      ].join(" ").toLowerCase();
+
+      return text.includes(query);
+    });
+
+  $("list").innerHTML = "";
+
+  $("count").textContent = tracks.length + " 首";
+
+  $("liststatus").textContent = query
+    ? "找到 " + shown.length + " 首"
+    : "准备播放";
+
+  $("empty").hidden = shown.length > 0;
+  $("list").hidden = shown.length === 0;
+
+  shown.forEach(({ track, i }) => {
+    const button = document.createElement("button");
+
+    button.className = "row" + (i === index ? " active" : "");
+    button.type = "button";
+
+    const artwork = document.createElement("span");
+    artwork.className = "mini";
+
+    if (track.cover) {
+      const img = document.createElement("img");
+
+      img.src = track.cover;
+      img.alt = "";
+
+      img.onerror = () => {
+        img.remove();
+        artwork.textContent = "♫";
+      };
+
+      artwork.appendChild(img);
+    } else {
+      artwork.textContent = "♫";
+    }
+
+    const copy = document.createElement("span");
+    copy.className = "copy";
+
+    const title = document.createElement("span");
+    title.className = "title";
+    title.textContent = getTitle(track);
+
+    const artist = document.createElement("span");
+    artist.className = "artist";
+    artist.textContent = track.artist || "未知艺术家";
+
+    copy.append(title, artist);
+
+    const length = document.createElement("span");
+    length.className = "length";
+    length.textContent = Number.isFinite(track.duration)
+      ? formatTime(track.duration)
+      : "♫";
+
+    button.append(artwork, copy, length);
+
+    button.addEventListener("click", () => {
+      loadTrack(i, true);
+    });
+
+    $("list").appendChild(button);
+  });
+}
+
+
+/* 更新播放按钮 */
+
+function updatePlayButton() {
+  $("play").textContent = audio.paused ? "▶" : "Ⅱ";
+
+  $("play").setAttribute(
+    "aria-label",
+    audio.paused ? "播放" : "暂停"
+  );
+
+  $("play").title = audio.paused ? "播放" : "暂停";
+}
+
+
+/* 更新进度条 */
+
+function updateProgress() {
+  const duration = audio.duration;
+
+  $("seek").value =
+    Number.isFinite(duration) && duration > 0
+      ? Math.round(audio.currentTime / duration * 1000)
+      : 0;
+
+  $("elapsed").textContent = formatTime(audio.currentTime);
+  $("total").textContent = formatTime(duration);
+}
+
+
+/* 加载歌曲 */
+
+function loadTrack(i, autoplay = false) {
+  if (!tracks.length) return;
+
+  index = (i + tracks.length) % tracks.length;
+
+  const track = tracks[index];
+
+  audio.src = track.src;
+  audio.load();
+
+  $("nowtitle").textContent = getTitle(track);
+
+  $("nowartist").textContent =
+    [track.artist, track.album].filter(Boolean).join(" · ")
+    || "未知艺术家";
+
+  const artwork = $("art");
+
+  artwork.querySelector("img")?.remove();
+
+  if (track.cover) {
+    const img = document.createElement("img");
+
+    img.src = track.cover;
+    img.alt = "歌曲封面";
+
+    img.onerror = () => img.remove();
+
+    artwork.appendChild(img);
+  }
+
+  lrc = [];
+
+  $("lyricbody").textContent = track.lyrics
+    ? "歌词加载中…"
+    : "暂无歌词。你可以为歌曲配置 lyrics 路径。";
+
+  if (track.lyrics) {
+    loadLyrics(track.lyrics);
+  }
+
+  renderList();
+  updateProgress();
+
+  if (autoplay) {
+    audio.play()
+      .then(updatePlayButton)
+      .catch(() => {
+        updatePlayButton();
+        toast("无法播放，请检查文件路径和浏览器格式支持。");
+      });
+  } else {
+    updatePlayButton();
+  }
+}
+
+
+/* 下一首 */
+
+function nextTrack() {
+  if (!tracks.length) return;
+
+  if (shuffle && tracks.length > 1) {
+    let next;
+
+    do {
+      next = Math.floor(Math.random() * tracks.length);
+    } while (next === index);
+
+    loadTrack(next, true);
+
+  } else if (index < tracks.length - 1) {
+    loadTrack(index + 1, true);
+
+  } else if (repeatMode === "all") {
+    loadTrack(0, true);
+
+  } else {
+    audio.pause();
+    audio.currentTime = 0;
+    updatePlayButton();
+  }
+}
+
+
+/* 上一首 */
+
+function previousTrack() {
+  if (!tracks.length) return;
+
+  if (audio.currentTime > 3) {
+    audio.currentTime = 0;
+    return;
+  }
+
+  if (shuffle && tracks.length > 1) {
+    let previous;
+
+    do {
+      previous = Math.floor(Math.random() * tracks.length);
+    } while (previous === index);
+
+    loadTrack(previous, true);
+
+  } else {
+    const previous =
+      index > 0
+        ? index - 1
+        : repeatMode === "all"
+          ? tracks.length - 1
+          : 0;
+
+    loadTrack(previous, true);
+  }
+}
+
+
+/* 读取 LRC 歌词 */
+
+async function loadLyrics(url) {
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("歌词读取失败");
+    }
+
+    const text = await response.text();
+
+    lrc = parseLRC(text);
+
+    if (!lrc.length) {
+      $("lyricbody").textContent = text.trim() || "歌词文件为空";
+    } else {
+      renderLyrics();
+    }
+
+  } catch {
+    $("lyricbody").textContent =
+      "无法加载歌词。请检查歌词路径和文件名大小写。";
+  }
+}
+
+
+/* 解析 LRC 时间戳 */
+
+function parseLRC(text) {
+  const result = [];
+
+  for (const line of text.split(/\r?\n/)) {
+    const matches = [
+      ...line.matchAll(/\[(\d{1,2}):(\d{1,2}(?:\.\d{1,3})?)\]/g)
+    ];
+
+    const lyric = line.replace(/\[[^\]]+\]/g, "").trim();
+
+    for (const match of matches) {
+      result.push({
+        time: Number(match[1]) * 60 + Number(match[2]),
+        text: lyric
+      });
+    }
+  }
+
+  return result.sort((a, b) => a.time - b.time);
+}
+
+
+/* 渲染同步歌词 */
+
+function renderLyrics() {
+  if (!lrc.length) return;
+
+  let activeIndex = -1;
+
+  lrc.forEach((line, i) => {
+    if (line.time <= audio.currentTime) {
+      activeIndex = i;
+    }
+  });
+
+  $("lyricbody").innerHTML = "";
+
+  lrc.forEach((line, i) => {
+    const span = document.createElement("span");
+
+    span.className =
+      "lyricline" + (i === activeIndex ? " current" : "");
+
+    span.textContent = line.text || "♪";
+
+    $("lyricbody").appendChild(span);
+  });
+
+  const active = $("lyricbody").querySelector(".current");
+
+  if (active && !$("lyrics-panel").hidden) {
+    active.scrollIntoView({
+      block: "nearest",
+      behavior: "smooth"
+    });
+  }
+}
+
+
+/* ================================
+   事件绑定
+================================ */
+
+$("play").addEventListener("click", () => {
+  if (!tracks.length) {
+    toast("请先在 TRACKS 中添加歌曲");
+    return;
+  }
+
+  if (index < 0) {
+    loadTrack(0, true);
+    return;
+  }
+
+  if (audio.paused) {
+    audio.play().catch(() => toast("播放失败，请检查音频文件"));
+  } else {
+    audio.pause();
+  }
+});
+
+$("prev").addEventListener("click", previousTrack);
+$("next").addEventListener("click", nextTrack);
+
+audio.addEventListener("play", updatePlayButton);
+audio.addEventListener("pause", updatePlayButton);
+
+audio.addEventListener("timeupdate", () => {
+  updateProgress();
+  renderLyrics();
+});
+
+audio.addEventListener("loadedmetadata", () => {
+  updateProgress();
+
+  if (index >= 0 && Number.isFinite(audio.duration)) {
+    tracks[index].duration = audio.duration;
+  }
+
+  renderList();
+});
+
+audio.addEventListener("ended", () => {
+  if (repeatMode === "one") {
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  } else {
+    nextTrack();
+  }
+});
+
+audio.addEventListener("error", () => {
+  if (audio.src) {
+    toast("音频加载失败：请检查文件路径和格式支持");
+  }
+});
+
+
+/* 进度条跳转 */
+
+$("seek").addEventListener("input", () => {
+  if (Number.isFinite(audio.duration) && audio.duration > 0) {
+    audio.currentTime =
+      Number($("seek").value) / 1000 * audio.duration;
+
+    updateProgress();
+  }
+});
+
+
+/* 音量 */
+
+$("volume").addEventListener("input", () => {
+  audio.volume = Number($("volume").value) / 100;
+  audio.muted = audio.volume === 0;
+
+  $("mute").textContent = audio.muted ? "🔇" : "🔊";
+});
+
+$("mute").addEventListener("click", () => {
+  audio.muted = !audio.muted;
+
+  $("mute").textContent = audio.muted ? "🔇" : "🔊";
+});
+
+
+/* 倍速 */
+
+$("speed").addEventListener("change", () => {
+  audio.playbackRate = Number($("speed").value);
+});
+
+
+/* 随机播放 */
+
+$("shuffle").addEventListener("click", () => {
+  shuffle = !shuffle;
+
+  $("shuffle").classList.toggle("on", shuffle);
+
+  toast(shuffle ? "已开启随机播放" : "已关闭随机播放");
+});
+
+
+/* 循环模式：列表 → 单曲 → 不循环 */
+
+$("repeat").addEventListener("click", () => {
+  repeatMode =
+    repeatMode === "all"
+      ? "one"
+      : repeatMode === "one"
+        ? "off"
+        : "all";
+
+  $("repeat").classList.toggle("on", repeatMode !== "off");
+  $("one").hidden = repeatMode !== "one";
+
+  const names = {
+    all: "列表循环",
+    one: "单曲循环",
+    off: "不循环"
+  };
+
+  $("repeat").title = "循环模式：" + names[repeatMode];
+  $("repeat").setAttribute(
+    "aria-label",
+    "循环模式：" + names[repeatMode]
+  );
+
+  toast("循环模式：" + names[repeatMode]);
+});
+
+
+/* 搜索 */
+
+$("search").addEventListener("input", renderList);
+
+
+/* 歌词面板 */
+
+$("lyrics-toggle").addEventListener("click", () => {
+  $("lyrics-panel").hidden = false;
+});
+
+$("lyrics-close").addEventListener("click", () => {
+  $("lyrics-panel").hidden = true;
+});
+
+
+/* 初始化 */
+
+audio.volume = 0.8;
+
+renderList();
+
+if (tracks.length) {
+  loadTrack(0, false);
+}
+</script>
+</body>
+</html>
+```
